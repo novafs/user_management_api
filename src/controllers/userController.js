@@ -1,6 +1,7 @@
 import pool from '../config/db.js';
 import cloudinary from '../config/cloudinary.js';
 import streamifier from 'streamifier';
+import bcrypt from 'bcryptjs';
 
 
 export const getUsers = async (req, res) => {
@@ -35,3 +36,17 @@ export const uploadAvatar = async (req, res) => {
   }
 };
 
+export const editUser = async (req, res) => {
+    try {
+      const { id } = req.user
+      const { username, email, password } = req.body
+      const passwordHash = await bcrypt.hash(password, 10);
+      await pool.query('UPDATE users SET username=$1, email=$2, password=$3 WHERE id=$4 RETURNING id, email, username', [username, email, passwordHash, id])
+
+      res.json({ message: 'User Edit Success', data: {id, username, emailz}});
+    } catch (error) {
+      console.log(error);
+      
+      res.status(500).json({ message: 'Error Edit User' });
+    }
+}
