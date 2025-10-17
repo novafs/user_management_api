@@ -6,3 +6,7 @@ CREATE TABLE users (
   role VARCHAR(50) DEFAULT 'user',
   avatar_url TEXT
 );
+
+ALTER TABLE users ADD COLUMN created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE users ADD COLUMN updated_at TIMESTAMP;
+
