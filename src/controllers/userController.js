@@ -41,9 +41,10 @@ export const editUser = async (req, res) => {
       const { id } = req.user
       const { username, email, password } = req.body
       const passwordHash = await bcrypt.hash(password, 10);
-      await pool.query('UPDATE users SET username=$1, email=$2, password=$3 WHERE id=$4 RETURNING id, email, username', [username, email, passwordHash, id])
+      const currentDate = new Date();
+      await pool.query('UPDATE users SET username=$2, email=$3, password=$4, updated_at=$5 WHERE id=$1 RETURNING id, email, username, updated_at', [id, username, email, passwordHash, currentDate]);
 
-      res.json({ message: 'User Edit Success', data: {id, username, emailz}});
+      res.json({ message: 'User Edit Success', data: {id, username, email, updated_at: currentDate} });
     } catch (error) {
       console.log(error);
       
