@@ -40,14 +40,18 @@ export const editUser = async (req, res) => {
     try {
       const { id } = req.user
       const { username, email, password } = req.body
+      if (email) {
+        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (rows.length && rows[0].id !== id) {
+          return res.status(400).json({ message: 'Email already in use' });
+        }
+      }
       const passwordHash = await bcrypt.hash(password, 10);
       const currentDate = new Date();
       await pool.query('UPDATE users SET username=$2, email=$3, password=$4, updated_at=$5 WHERE id=$1 RETURNING id, email, username, updated_at', [id, username, email, passwordHash, currentDate]);
 
       res.json({ message: 'User Edit Success', data: {id, username, email, updated_at: currentDate} });
     } catch (error) {
-      console.log(error);
-      
       res.status(500).json({ message: 'Error Edit User' });
     }
 }
