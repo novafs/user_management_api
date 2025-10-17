@@ -40,10 +40,19 @@ export const editUser = async (req, res) => {
     try {
       const { id } = req.user
       const { username, email, password } = req.body
+      // Email Validation
       if (email) {
-        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const { rows } = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
         if (rows.length && rows[0].id !== id) {
           return res.status(400).json({ message: 'Email already in use' });
+        }
+      }
+      // Password Validation
+      if (password) {
+        const { rows } = await pool.query('SELECT password FROM users WHERE id = $1', [id]);
+        const isSamePassword = await bcrypt.compare(password, rows[0].password);
+        if (isSamePassword) {
+          return res.status(400).json({ message: 'New password must be different from the old one' });
         }
       }
       const passwordHash = await bcrypt.hash(password, 10);
