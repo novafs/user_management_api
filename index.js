@@ -6,7 +6,7 @@ import authRoutes from './src/routes/authRoute.js';
 import userRoutes from './src/routes/userRoute.js';
 
 dotenv.config();
-
+const port = process.env.PORT || 4000;
 const app = express();
 app.use(express.json());
 
@@ -30,7 +30,7 @@ async function setupSwagger() {
         app.use('/api-docs', swaggerUi.default.serve, swaggerUi.default.setup(specs, {
             explorer: true,
             customCss: '.swagger-ui .topbar { display: none }',
-            customSiteTitle: "Latihan Backend API Documentation"
+            customSiteTitle: "User Management API Documentation"
         }))
 
         console.log('Swagger documentation available at: http://localhost:' + port + '/api-docs')
@@ -50,6 +50,6 @@ app.get('/', (req, res) => {
 // Initialize Swagger
 setupSwagger()
 
-app.listen(process.env.PORT || 4000, () => {
+app.listen(port, () => {
   console.log('Server running...');
 });

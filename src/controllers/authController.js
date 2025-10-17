@@ -2,14 +2,16 @@ import pool from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+// import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    // const id = uuidv4()
     const hashed = await bcrypt.hash(password, 10);
     const query = 'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email';
-    const { rows } = await pool.query(query, [username, email, hashed]);
+    const { rows } = await pool.query(query, [id, username, email, hashed]);
     res.status(201).json({ message: 'User registered', user: rows[0] });
   } catch (err) {
     res.status(500).json({ message: 'Error registering user', error: err.message });
