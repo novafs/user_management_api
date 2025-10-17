@@ -21,6 +21,35 @@ app.use(helmet());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
+// Setup Swagger Documentation
+async function setupSwagger() {
+    try {
+        const swaggerUi = await import('swagger-ui-express')
+        const { default: specs } = await import('./src/config/swagger.js')
+
+        app.use('/api-docs', swaggerUi.default.serve, swaggerUi.default.setup(specs, {
+            explorer: true,
+            customCss: '.swagger-ui .topbar { display: none }',
+            customSiteTitle: "Latihan Backend API Documentation"
+        }))
+
+        console.log('Swagger documentation available at: http://localhost:' + port + '/api-docs')
+    } catch (error) {
+        console.log('Swagger setup failed:', error.message)
+    }
+}
+
+// Root endpoint
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Welcome to Latihan Backend API',
+        documentation: '/api-docs'
+    })
+})
+
+// Initialize Swagger
+setupSwagger()
+
 app.listen(process.env.PORT || 4000, () => {
   console.log('Server running...');
 });
