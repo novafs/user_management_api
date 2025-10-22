@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Security middleware
 app.use(cors({
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:' + port],
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 app.use(helmet());
@@ -51,5 +51,5 @@ app.get('/', (req, res) => {
 setupSwagger()
 
 app.listen(port, () => {
-  console.log('Server running...');
+  console.log('Server running on localhost:' + port);
 });

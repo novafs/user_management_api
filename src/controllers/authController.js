@@ -11,7 +11,7 @@ export const register = async (req, res) => {
     // const id = uuidv4()
     const hashed = await bcrypt.hash(password, 10);
     const query = 'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email';
-    const { rows } = await pool.query(query, [id, username, email, hashed]);
+    const { rows } = await pool.query(query, [username, email, hashed]);
     res.status(201).json({ message: 'User registered', user: rows[0] });
   } catch (err) {
     res.status(500).json({ message: 'Error registering user', error: err.message });
