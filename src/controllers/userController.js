@@ -40,12 +40,25 @@ export const editUser = async (req, res) => {
     try {
       const { id } = req.user
       const { username, email, password } = req.body
+      const currentDate = new Date();
+
+      // Username validation
+      if (username) {
+        const { rows } = await pool.query('SELECT id, username FROM users WHERE username = $1', [username]);
+        if (rows.length && rows[0].id !== id) {
+          return res.status(400).json({ message: 'Username already in use' });
+        }
+      } else if (!username) {
+        username = req.user.username
+      }
       // Email Validation
       if (email) {
         const { rows } = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
         if (rows.length && rows[0].id !== id) {
           return res.status(400).json({ message: 'Email already in use' });
         }
+      } else if (!email) {
+        email = req.user.email
       }
       // Password Validation
       if (password) {
@@ -54,12 +67,22 @@ export const editUser = async (req, res) => {
         if (isSamePassword) {
           return res.status(400).json({ message: 'New password must be different from the old one' });
         }
+      } else if (!password) {
+        password = req.user.password
       }
       const passwordHash = await bcrypt.hash(password, 10);
-      const currentDate = new Date();
       await pool.query('UPDATE users SET username=$2, email=$3, password=$4, updated_at=$5 WHERE id=$1 RETURNING id, email, username, updated_at', [id, username, email, passwordHash, currentDate]);
 
-      res.json({ message: 'User Edit Success', data: {id, username, email, updated_at: currentDate} });
+      res.json({ 
+        message: 'User Edit Success', 
+        data: {
+          id, 
+          "Username" : username, 
+          "Email" : email,
+          "Password" : password ? "Password updated success" : "Password not changed",
+          updated_at: currentDate
+        } 
+      });
     } catch (error) {
       res.status(500).json({ message: 'Error Edit User' });
     }
